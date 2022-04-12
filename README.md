@@ -10,10 +10,10 @@ A direct transcription solver (feasible estimator and optimizer) for low-thrust 
 * Two different solvers for different stages of trajectory design
 * Uses analytical jacobians for fast computation.
 * Uses sparse matrices to handle very large problems.
-* Feasible trajectory solver
+* Feasible trajectory solver (**feasibleTranscription()**)
 	* Estimate closest feasible trajectory from an initial guess 
 	* Levenberg-Marquardt with MATLAB fsolve solver
-* Optimizer
+* Optimizer (**optimalTranscription()**)
 	* Optimize input trajectory with various objectives (thrust, propellant and time optimal)
 	* Allows robust feasible trajectory estimation with dummy zero objective
 	* Interior-Point with IPOPT optimizer
@@ -33,9 +33,27 @@ A direct transcription solver (feasible estimator and optimizer) for low-thrust 
 * Download and install IPOPT optimizer
 * Download LGL nodes-and-weights and copy to **external\\** folder
 
-## Limitation
+## Usage / Manual
 
-* No straight forward method exists for adding user-defined constraints, except what is already implemented. Currently, the code only supports the two-point boundary-value problem for CR3BP+low-thrust. Adding other constraints (for example periodicity) requires cubersome modification of the code. 
-* Some parts of the code are developed with modularity and abstraction in mind. For example, the transcription defect constraints and jacobain can be computed for any user defined dynamics provided the analytical jacobian wrt. state, control and time are available. But most other sections are tailored for CR3BP+low-thrust problem.
-* Through manual mesh refinement can be achived by chaining multiple solver instances with varying segment and order values externally, no inbuilt mesh refinement routines currently are implemented.
-* For use with large problems, the code uses sparse matrices for the full jacobian of the NLP. But sparse matrix creation currently is not fully optimized and code readablity is terrible in its implentation.
+* Use ```help feasibleTranscription``` for brief information on feasible solver.
+* Use ```help optimalTranscription``` for brief information on optimizer.
+* Examples of solver usage can be found in **examples\\** folder.
+
+## Limitation / Issues
+
+* No direct access to LGL interpolation outside solver. 
+* No easy way to add user-defined constraints (eg: periodicity)
+* Optimization issues with some sparse matrix operations
+* Time fixed flag is buggy
+* No inequality constraints for feasible transcription solver
+* Small part of the code is built with modularity in mind, others are tailored for CR3BP+low-thrust
+
+## References
+
+- "Low-Thrust Trajectory Design for Tours of the Martian Moons", Beom Park
+- "A Collocation Approach for Computing Solar Sail Lunar Pole-Sitter Orbits", Martin T. Ozimek, Daniel J. Grebow, and Kathleen C. Howell
+- "MColl - Monte Collocation Trajectory Design Tool", Daniel J. Grebow and Thomas A. Pavlak
+- "Strategies for Low-Thrust Transfer Design Based on Direct Collocation Techniques", Robert E. Pritchett
+- "Survey of Direct Transcription for Low-Thrust Space Trajectory Optimization with Applications", Francesco Topputo and Chen Zhang
+- "Trajectory Design in the. Earth-Moon System and Lunar South Pole Coverage", Daniel J. Grebow
+- "Design of low-thrust transfers. from an NRHO to low lunar orbits-applications for small spacecraft", Beom Park, Kathleen C. Howell, and David C. Folta
