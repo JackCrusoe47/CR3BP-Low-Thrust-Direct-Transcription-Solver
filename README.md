@@ -29,9 +29,9 @@ A direct transcription solver (feasible estimator and optimizer) for low-thrust 
 
 ## Installation
 
-* Download CR3BP Low-Thrust Direct Transcription Solver
-* Download and install IPOPT optimizer
-* Download LGL nodes-and-weights and copy to **external\\** folder
+* Download CR3BP Low-Thrust Direct Transcription Solver.
+* Download and install IPOPT optimizer.
+* Download LGL nodes-and-weights and copy to **external\\** folder.
 
 ## Usage / Manual
 
@@ -41,12 +41,13 @@ A direct transcription solver (feasible estimator and optimizer) for low-thrust 
 
 ## Limitation / Issues
 
+* No automated mesh refinment strategy is implemented.
 * No direct access to LGL interpolation outside solver. 
-* No easy way to add user-defined constraints (eg: periodicity)
-* Optimization issues with some sparse matrix operations
-* Time fixed flag is buggy
-* No inequality constraints for feasible transcription solver
-* Small part of the code is built with modularity in mind, others are tailored for CR3BP+low-thrust
+* No easy way to add user-defined constraints (eg: periodicity).
+* Optimization issues with some sparse matrix operations.
+* Time fixed flag is buggy.
+* No inequality constraints for feasible transcription solver.
+* Small part of the code is built with modularity in mind, others are tailored for CR3BP+low-thrust.
 
 ## References
 
