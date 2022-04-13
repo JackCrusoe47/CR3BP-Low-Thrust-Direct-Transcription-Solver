@@ -15,23 +15,33 @@ function [solution,problem] = feasibleTranscription(problem,solver_options)
 %                             DESCRIPTION
 % ***********************************************************************
 %
-%   A feasible trajectory solver for CR3BP+low-thrust problem with direct
-% transcription. It estimates a feasible / quasi-feasible trajectory in 
-% proximity of an initial guess solution provided by the user through
-% through iterative correction with a Newton-Raphson like scheme. The
-% solver can impose optional boundary state constraints along with 
-% transcription defects. For robustness, instead of a perfect Newton - 
-% Raphson apporoach, the method used is the Levenberg-Marquardt damped 
-% least square method. 
+%       A NLP solver to solve CR3BP+low-thrust trajectory through direct
+%   transcription. It finds a feasible trajectory in proximity to a user
+%   defined initial guess with optional boundary equality constraints.
+%   Internally, the solver uses the Levenberg-Marquardt damped least
+%   squares method with MATLAB fsolve solver.
+% 
+%   Solves the following trajectory optimal control problem:
 %
-%   For accurate transcription, instead of unifrom nodes, the nodes are
-% distributed using a Legandre-Gauss-Lobotto (LGL) node placement. To
-% handle large problems, the jacobian matrices of constraints w.r.t.
-% to the variables are implemented with sparse matrix, saving valuble
-% memorey. For efficiency, analytical jacobians are computed instead of
-% expensive finite deference methods. For simplicity and being inline with
-% typical low-thrust maneuvers, the controls are kept constant within a
-% segment.
+%       given inital traj.  : xGuess, uGuess, tGuess
+%
+%       with dynamics       : dynamics(t,x,u,param)
+%
+%          & path const.    : u(1,t) <= maxThrust
+%                             u(2,t)^2+u(3,t)^2+u(4,t)^2 = 1
+%
+%          & bnds const.    : x(t0) = x0    (OPTIONAL)
+%                             x(tf) = xf    (OPTIONAL)
+%
+%       Converts continous optimal control problem to a NLP with direct
+%   transcription method. The trajectory is descritized in to segments
+%   and special nodes in each segment are used to create an interpolation
+%   function and defects in collocation nodes are minimized. For improved
+%   accuracy, Legandre-Gauss-Lobotto node placement strategy is used to
+%   define the node location. The user defines the number of segments and 
+%   order of interpolation for the transcription. The program uses 
+%   analytical jacobian of the dynamics and uses sparse matrices for
+%   computational and memory efficency.
 %
 % ***********************************************************************
 %
@@ -60,23 +70,23 @@ function [solution,problem] = feasibleTranscription(problem,solver_options)
 %       .dynamics   : dynamics function handle @(t,x,u)dynProb(t,x,u,param)
 %       .jacobian   : jacobian function handle @(t,x,u)jacProb(t,x,u,param)
 %
-% For current CR3BP+LowThrust, set these functions to dynamics_CR3BP_Thrust
-% and jacobian_CR3BP_Thrust respectively.
+%   For current CR3BP+LowThrust, set these functions to 
+%   dynamics_CR3BP_Thrust and jacobian_CR3BP_Thrust respectively.
 %
 %   .bnds           : problem bounds struct (OPTIONAL)
 %       .path0.ub   : initial boundary equality constriants ( nState x 1 )
 %       .pathf.ub   : final boundary equality costraints ( nState x 1 )
 %
-% Set values for boundary equality constraints. For any unconstrainted 
-% states, set them to inf. For example, [5;2;3;inf;inf;inf;24], sets 
-% equality constraints for position as [5;2;3] and spacecraft mass as 24.
+%   Set values for boundary equality constraints. For any unconstrainted 
+%   states, set them to inf. For example, [5;2;3;inf;inf;inf;24], sets 
+%   equality constraints for position as [5;2;3] and spacecraft mass as 24.
 %                      
 %   .flag           : additional problem flags
 %       .timeFixed  : true if problem is time-fixed (not recommended)
 %
-% The time fixed option is not recommended. For most problems, it prevents 
-% the solver from converging, either due to overconstraining or error in 
-% jacobian.s
+%   The time fixed option is not recommended. For most problems, the option
+%   prevents the solver from converging, either due to overconstraining or 
+%   error in jacobian.
 %
 %   .nState         : number of states (7 for CR3BP+Low Thrust problem)
 %   .nControl       : number of controls (4 for CR3BP+Low Thrust problem)
@@ -130,7 +140,7 @@ function [solution,problem] = feasibleTranscription(problem,solver_options)
 %
 % problem           : updated problem struct for debuging
 %
-% Content same as input problem struct, along with updates listed below:
+%   Content same as input problem struct, along with updates listed below:
 %
 %   .traj.interp    : interpolation functions for input traj.data
 %           .x(t)   : state interpolation function ( nState x nTime )

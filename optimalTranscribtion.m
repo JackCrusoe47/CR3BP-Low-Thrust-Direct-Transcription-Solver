@@ -15,19 +15,42 @@ function [solution,problem] = optimalTranscribtion(problem,solver_options)
 %                             DESCRIPTION
 % ***********************************************************************
 %
-%  A NLP optimizer for CR3BP+low-thrust trajectory optimization with direct
-% transcription. For performance and robustness, the interior point
-% optimizer IPOPT is used. Multiple objectives and boundary constraints are
-% implmented and available to the user for optimization.
+%       A NLP optimizer to solve CR3BP+low-thrust trajectory through direct
+%   transcription. It finds an optimized trajectory in proximity to a user
+%   defined initial guess with given a objective and inequality constraints
+%   on boundary & path parameters. The optimization is performed with an
+%   interior point optimizer IPOPT.
+% 
+%   Optimizes the following trajectory optimal control problem:
 %
-%  For accurate transcription, instead of unifrom nodes, the nodes are
-% distributed using a Legandre-Gauss-Lobotto (LGL) node placement. To
-% handle large problems, the jacobian matrices of constraints w.r.t.
-% to the variables are implemented with sparse matrix, saving valuble
-% memorey. For efficiency, analytical jacobians are computed instead of
-% expensive finite deference methods. For simplicity and being inline with
-% typical low-thrust maneuvers, the controls are kept constant within a
-% segment.
+%       given objective     : min( J )
+%
+%          & inital traj.   : xGuess, uGuess, tGuess
+%
+%       with dynamics       : dynamics(t,x,u,param)
+%
+%          & path const.    : xlb <= x(t) <= xub    (OPTIONAL)
+%                             uln <= u(t) <= uub    (OPTIONAL)
+%                             u(1,t) <= maxThrust
+%                             u(2,t)^2+u(3,t)^2+u(4,t)^2 = 1
+%
+%          & bnds const.    : x(t0) = x0    (OPTIONAL)
+%                             x(tf) = xf    (OPTIONAL)
+%                             tlb <= tf <= tub (OPTIONAL) 
+%
+%       Using the 'feasible' dummy objective, the optimizer can solve NLP 
+%   to identify a feasible trajectory much more robustly than the feasible
+%   transcription solver.
+%
+%       Converts continous optimal control problem to a NLP with direct
+%   transcription method. The trajectory is descritized in to segments
+%   and special nodes in each segment are used to create an interpolation
+%   function and defects in collocation nodes are minimized. For improved
+%   accuracy, Legandre-Gauss-Lobotto node placement strategy is used to
+%   define the node location. The user defines the number of segments and 
+%   order of interpolation for the transcription. The program uses 
+%   analytical jacobian of the dynamics and uses sparse matrices for
+%   computational and memory efficency.
 %
 % ***********************************************************************
 %
@@ -56,8 +79,8 @@ function [solution,problem] = optimalTranscribtion(problem,solver_options)
 %       .dynamics   : dynamics function handle @(t,x,u)dynProb(t,x,u,param)
 %       .jacobian   : jacobian function handle @(t,x,u)jacProb(t,x,u,param)
 %
-% For current CR3BP+LowThrust, set these functions to dynamics_CR3BP_Thrust
-% and jacobian_CR3BP_Thrust respectively.
+%   For current CR3BP+LowThrust, set these functions to 
+%   dynamics_CR3BP_Thrust and jacobian_CR3BP_Thrust respectively.
 %
 %   .bnds           : problem bounds struct (OPTIONAL)
 %       .state      : state bounds (OPTIONAL)
@@ -76,16 +99,16 @@ function [solution,problem] = optimalTranscribtion(problem,solver_options)
 %       	.lb     : lower bound ( nState x 1 )
 %       	.ub     : upper bound ( nState x 1 )
 %
-% It is recommended to leave all options other than the required to their
-% defaults. Over constraining or with redudandant constrains, the rate of
-% convergence of the trajectory can be reduced considerably.
+%   Recommended to leave all, but the most necessary option, to their 
+%   defaults. The rate of convergence can be reduced considerably with over
+%   constrained or redundant constraints.
 %                      
 %   .flag           : additional problem flags
 %       .timeFixed  : true if problem is time-fixed (not recommended)
 %
-% The time fixed option is not recommended. For most problems, it prevents 
-% the solver from converging, either due to overconstraining or error in 
-% jacobian.
+%   The time fixed option is not recommended. For most problems, the option
+%   prevents the solver from converging, either due to overconstraining or 
+%   error in jacobian.
 %
 %   .nState         : number of states (7 for CR3BP+Low Thrust problem)
 %   .nControl       : number of controls (4 for CR3BP+Low Thrust problem)
@@ -148,7 +171,7 @@ function [solution,problem] = optimalTranscribtion(problem,solver_options)
 %
 % problem           : updated problem struct for debuging
 %
-% Content same as input problem struct, along with updates listed below:
+%   Content same as input problem struct, along with updates listed below:
 %
 %   .traj.interp    : interpolation functions for input traj.data
 %           .x(t)   : state interpolation function ( nState x nTime )
