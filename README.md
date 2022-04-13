@@ -4,7 +4,7 @@ A direct transcription solver (feasible estimator and optimizer) for low-thrust 
 
 Optimized Trajectory           |  Mass and Thrust functions
 :-------------------------:|:-------------------------:
-![Trajectory](https://github.com/JackCrusoe47/CR3BP-Low-Thrust-Direct-Transcription-Solver/blob/main/images/Trajectory_optimizer.jpg) |  ![Trajectory](https://github.com/JackCrusoe47/CR3BP-Low-Thrust-Direct-Transcription-Solver/blob/main/images/Additional_optimizer.jpg)
+![Trajectory](images/Trajectory_optimizer.jpg?raw=true) |  ![Trajectory](images/Additional_optimizer.jpg?raw=true)
 
 
 
